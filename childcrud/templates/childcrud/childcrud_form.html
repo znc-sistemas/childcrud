@@ -1,0 +1,16 @@
+{% load html_form_extras %}
+{% if msg %}
+    <div class="info">{{ msg|safe }}</div>
+{% endif %}
+{% if show_form %}
+	<div class="form-line">
+		{% for field in form %}
+		  {% form_field field %}
+		  {% csrf_token %}
+		{% endfor %}
+	</div>
+    <div class="submit-row align-left">
+        <input type="submit" class="button-small default" value="{% if form.instance.pk %}Atualizar{% else %}Cadastrar{% endif %}" />
+        <input type="button" class="button-small" value="Cancelar" onclick="ajax_cancel_form('{{ variable_name }}')" />
+    </div>
+{% endif %}

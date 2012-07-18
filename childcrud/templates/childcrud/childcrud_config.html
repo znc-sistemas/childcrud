@@ -1,0 +1,12 @@
+<div class="fieldset cnuc">
+    <h3><div class="collapse-icon uncollapsed"></div> </h3>
+    <div class="fields">
+      {% ifequal dialog "all" %}<div id="{{ variable_name }}-dialog" title="{{ verbose_name }}" style="display:none">{% endifequal %}
+      <h2><input id="{{ variable_name }}-bt" type="button" value="Adicionar" /></h2>
+      {% ifequal dialog "form" %}<div id="{{ variable_name }}-dialog" title="{{ verbose_name }}" style="display:none">{% endifequal %}
+      <form id="{{ variable_name }}-form" method="post"></form>
+      {% ifequal dialog "form" %}</div>{% endifequal %}
+      <div id="{{ variable_name }}-list"></div>  
+      {% ifequal dialog "all" %}</div>{% endifequal %}   
+    </div>
+</div>
