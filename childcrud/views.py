@@ -6,6 +6,7 @@ from django.db.models import get_model, DateField, DateTimeField
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.utils.safestring import mark_safe
+from django.core.urlresolvers import reverse
 
 import os
 
@@ -20,22 +21,36 @@ def fk_create_update(request, app_name, model_name, id=None, form_class=None):
 
     model_admin = admin_registry[model]
 
-    instance = None
+    field_id = request.GET.get('fid', '')
+
     if id:
         instance = get_object_or_404(model, pk=id)
+        action_url = reverse('fk-update', kwargs={'app_name': app_name, 'model_name': model_name, 'id': id})
+    else:
+        instance = None
+        action_url = reverse('fk-create', kwargs={'app_name': app_name, 'model_name': model_name})
 
     if not form_class:
         form_class = model_admin.get_form(request, instance)
 
     form = form_class(request.POST or None, request.FILES or None)
+    msg = ''
+    obj = None
     if request.method == 'POST':
-        form.save()
+        if form.is_valid():
+            obj = form.save()
+            msg = id and u"Item atualizado com sucesso!" or u"Novo item criado com sucesso!"
+
     print('%s/childcrud_%s_form.html' % (app_name, model_name))
     return render_to_response(['%s/childcrud_%s_form.html' % (app_name, model_name),
                                'childcrud/childcrud_form.html'],
                                {
+                                    'field_id': field_id,
+                                    'action_url': action_url,
                                     'form': form,
-                                    'action': request.path
+                                    'is_new': not id,
+                                    'object': obj,
+                                    'msg': msg,
                                 },
                                context_instance=RequestContext(request))
 
