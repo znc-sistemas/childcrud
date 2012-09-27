@@ -7,8 +7,8 @@
 		</tr>
 	</thead>
 	<tbody>
-		
-	
+
+
 	{% for row in rows %}
 	   <tr class="{% cycle odd,even %}">
 	   {% for col in row %}
@@ -16,17 +16,17 @@
 	           {% ifequal forloop.counter 2 %}
 	       <td>{% if can_edit %}<a href="javascript:ajax_show_form('{{ variable_name }}', {{ row.0 }})" title="Editar...">{{ col }}</a>{% else %}{{ col }}{% endif %}</td>
 			   {% else %}
-		   <td>{{ col }}</td>	   
+		   <td>{{ col }}</td>
 			   {% endifequal %}
 		   {% endif %}
-      
-	   {% endfor %}	
+
+	   {% endfor %}
 	       {% if can_edit %}<td style="width:15px;"><a href="javascript:ajax_delete('{{ variable_name }}', {{ row.0 }})" title="Excluir..."><img src="{{ STATIC_URL }}images/del_alternative_icon.gif" /></a></td>{% endif %}
        </tr>
-               {% empty %} 
+               {% empty %}
                 <tr class="{% cycle odd,even %}">
                 <td colspan="{{ headers|length|add:'1' }}" >  Nenhum item encontrado.  </td>
-                </tr>  
-	{% endfor %}	
+                </tr>
+	{% endfor %}
 	</tbody>
 </table>
