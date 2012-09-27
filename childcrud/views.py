@@ -11,6 +11,36 @@ import os
 
 
 @login_required
+def fk_create_update(request, app_name, model_name, id=None, form_class=None):
+    model = get_model(app_name, model_name)
+
+    admin_registry = admin.site._registry
+    if model not in admin_registry:
+        raise Exception(u"Model '%s.%s' not registered!" % (app_name, model_name))
+
+    model_admin = admin_registry[model]
+
+    instance = None
+    if id:
+        instance = get_object_or_404(model, pk=id)
+
+    if not form_class:
+        form_class = model_admin.get_form(request, instance)
+
+    form = form_class(request.POST or None, request.FILES or None)
+    if request.method == 'POST':
+        form.save()
+    print('%s/childcrud_%s_form.html' % (app_name, model_name))
+    return render_to_response(['%s/childcrud_%s_form.html' % (app_name, model_name),
+                               'childcrud/childcrud_form.html'],
+                               {
+                                    'form': form,
+                                    'action': request.path
+                                },
+                               context_instance=RequestContext(request))
+
+
+@login_required
 def ajax_create_update(request, p_app_name, p_model_name, p_id, app_name, model_name, id=None, form_class=None):
     parent_model = get_model(p_app_name, p_model_name)
     model = get_model(app_name, model_name)

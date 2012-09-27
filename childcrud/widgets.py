@@ -24,16 +24,16 @@ class SelectFKWidget(Select):
             else:
                 op_str = 'null'
             params = {
-                'url_new': reverse('fk-edit', kwargs={'app_label': self.rel._meta.app_label, 'model_name': self.rel._meta.module_name.lower()}),
-                'url_upd': reverse('fk-edit', kwargs={'app_label': self.rel._meta.app_label, 'model_name': self.rel._meta.module_name.lower(), 'id': '0'}),
+                'url_new': reverse('fk-create', kwargs={'app_name': self.rel._meta.app_label, 'model_name': self.rel._meta.module_name.lower()}),
+                'url_upd': reverse('fk-update', kwargs={'app_name': self.rel._meta.app_label, 'model_name': self.rel._meta.module_name.lower(), 'id': '0'}),
                 'titulo': self.rel._meta.verbose_name.capitalize(),
                 'id': attrs.get('id', name),
                 'style': not value and 'style="display:none"' or '',
-                'media_url': settings.MEDIA_URL,
+                'static_url': settings.STATIC_URL,
                 'options': op_str
             }
-            bts = u"""<a href="#" onclick="return fk_dialog(this, \'%(url_new)s\', \'%(titulo)s\', %(options)s)" title="Adicionar..."><img src="%(media_url)simages/add-icon.png" style="vertical-align:middle"/></a>
-            <a href="#" id="bt-%(id)s-editar" onclick="return fk_dialog(this, \'%(url_upd)s\', \'%(titulo)s\', %(options)s)" title="Editar..." %(style)s><img src="%(media_url)simages/edit-icon.png" style="vertical-align:middle"/></a>
+            bts = u"""<a href="#" onclick="return fk_dialog(this, \'%(url_new)s\', \'%(titulo)s\', %(options)s)" title="Adicionar..."><img src="%(static_url)simg/go-up.png" style="vertical-align:middle"/></a>
+            <a href="#" id="bt-%(id)s-editar" onclick="return fk_dialog(this, \'%(url_upd)s\', \'%(titulo)s\', %(options)s)" title="Editar..." %(style)s><img src="%(static_url)simg/go-up.png" style="vertical-align:middle"/></a>
             <div id="%(id)s-dialog"></div>""" % params
         return mark_safe(u'%s%s' % (output, bts))
 
