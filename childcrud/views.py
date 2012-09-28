@@ -41,7 +41,6 @@ def fk_create_update(request, app_name, model_name, id=None, form_class=None):
             obj = form.save()
             msg = id and u"Item atualizado com sucesso!" or u"Novo item criado com sucesso!"
 
-    print('%s/childcrud_%s_form.html' % (app_name, model_name))
     return render_to_response(['%s/childcrud_%s_form.html' % (app_name, model_name),
                                'childcrud/childcrud_form.html'],
                                {
