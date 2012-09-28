@@ -32,8 +32,8 @@ class SelectFKWidget(Select):
                 'static_url': settings.STATIC_URL,
                 'options': op_str
             }
-            bts = u"""<a href="#" onclick="return fk_dialog(this, \'%(url_new)s\', \'%(titulo)s\', %(options)s)" title="Adicionar..."><img src="%(static_url)simg/go-up.png" style="vertical-align:middle"/></a>
-            <a href="#" id="bt-%(id)s-editar" onclick="return fk_dialog(this, \'%(url_upd)s\', \'%(titulo)s\', %(options)s)" title="Editar..." %(style)s><img src="%(static_url)simg/go-up.png" style="vertical-align:middle"/></a>
+            bts = u"""<a href="#" onclick="return fk_dialog(this, \'%(url_new)s\', \'%(titulo)s\', %(options)s)" title="Adicionar..."><i class="icon-plus"></i></a>
+            <a href="#" id="bt-%(id)s-editar" onclick="return fk_dialog(this, \'%(url_upd)s\', \'%(titulo)s\', %(options)s)" title="Editar..." %(style)s><i class="icon-edit"></i></a>
             <div id="%(id)s-dialog"></div>""" % params
         return mark_safe(u'%s%s' % (output, bts))
 
