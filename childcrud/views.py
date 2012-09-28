@@ -33,7 +33,7 @@ def fk_create_update(request, app_name, model_name, id=None, form_class=None):
     if not form_class:
         form_class = model_admin.get_form(request, instance)
 
-    form = form_class(request.POST or None, request.FILES or None)
+    form = form_class(request.POST or None, request.FILES or None, instance=instance)
     msg = ''
     obj = None
     if request.method == 'POST':
