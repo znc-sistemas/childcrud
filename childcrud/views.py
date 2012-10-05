@@ -42,7 +42,7 @@ def fk_create_update(request, app_name, model_name, id=None, form_class=None):
             msg = id and u"Item atualizado com sucesso!" or u"Novo item criado com sucesso!"
 
     return render_to_response(['%s/childcrud_%s_form.html' % (app_name, model_name),
-                               'childcrud/childcrud_form.html'],
+                               'childcrud/fkedit_form.html'],
                                {
                                     'field_id': field_id,
                                     'action_url': action_url,
@@ -50,6 +50,7 @@ def fk_create_update(request, app_name, model_name, id=None, form_class=None):
                                     'is_new': not id,
                                     'object': obj,
                                     'msg': msg,
+                                    'show_form': True,
                                 },
                                context_instance=RequestContext(request))
 
