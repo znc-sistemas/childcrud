@@ -1,14 +1,161 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.files import File
-from django.db.models import get_model, DateField, DateTimeField
-from django.shortcuts import get_object_or_404, render_to_response
+from django.db.models import get_model, DateField, DateTimeField, BooleanField
+from django.http import Http404
+from django.shortcuts import get_object_or_404, render_to_response, render, redirect
 from django.template import RequestContext
 from django.utils.safestring import mark_safe
 from django.core.urlresolvers import reverse
 
 import os
+
+
+@login_required
+def simple_crud(request, app_name, model_name, id=None, form_class=None):
+    """
+    View Genérica para listar, criar, atualizar e deletar, gerada a partir
+    de registro do admin
+    """
+    model = get_model(app_name, model_name)
+
+    admin_registry = admin.site._registry
+    if model not in admin_registry:
+        raise Http404()
+
+    model_admin = admin_registry[model]
+
+    instance = None
+    if id:
+        instance = get_object_or_404(model, pk=id)
+
+    if not form_class:
+        form_class = model_admin.get_form(request, instance)
+
+    object_list = model.objects.all()
+    base_url = reverse('simple-crud', kwargs={'app_name': app_name, 'model_name': model_name})
+
+    form = form_class(request.POST or None, request.FILES or None, instance=instance)
+    if request.method == "POST":
+        ids_delete_list = request.POST.getlist('delete')
+        if request.POST.get('delete_button', ''):
+            # delete
+            # TODO: check related model to prevenet data loss on delete
+            if ids_delete_list:
+                [i.delete() for i in model.objects.filter(id__in=ids_delete_list)]
+                plural = len(ids_delete_list) > 1
+                msg = u'%d ite%s excluído%s.' % (len(ids_delete_list), plural and 'ns' or 'm', plural and 's' or '')
+                messages.success(request, msg)
+            else:
+                msg = u'Nenhum item excluído. Selecione algum antes!'
+                messages.warning(request, msg)
+            return redirect(base_url)
+        else:
+            # create and update
+            if form.is_valid():
+                form.save()
+                msg = instance and u"Item atualizado com sucesso!" or u"Novo item criado com sucesso!"
+                messages.success(request, msg)
+                return redirect(base_url)
+
+    headers = []
+    cols = []
+    has_add_info = False
+    has_upd_info = False
+
+    list_fields = list(model_admin.list_display)
+    for f in ('action_checkbox', '__str__', '__unicode__',):
+        if f in list_fields:
+            list_fields.remove(f)
+
+    if list_fields:
+        if model._meta.pk.name not in list_fields:
+            list_fields.insert(0, model._meta.pk.name)
+        fields = [model._meta.get_field(f) for f in list_fields]
+    else:
+        fields = model._meta.fields
+
+    for field in fields:
+        if not field.primary_key and field.name not in (model_admin.fk_name, 'user_upd', 'date_upd', 'user_add', 'date_add'):
+            headers.append(field.verbose_name.capitalize())
+        if field.name == 'user_add':
+            has_add_info = True
+        if field.name == 'user_upd':
+            has_upd_info = True
+        if field.name not in (model_admin.fk_name, 'user_upd', 'date_upd', 'user_add', 'date_add'):
+            cols.append(field.name)
+    if has_add_info:
+        headers.append(u'Cadastro')
+    if has_upd_info:
+        headers.append(u'Atualização')
+
+    rows = []
+    for obj in object_list:
+        row = []
+        for col in cols:
+            field = model._meta.get_field(col)
+            if field.choices:
+                data = getattr(obj, 'get_%s_display' % field.name)()
+                if data is None:
+                    data = '--'
+            else:
+                data = getattr(obj, field.name)
+                if data is None:
+                    data = '--'
+                else:
+                    if isinstance(field, DateField):
+                        data = data.strftime("%d/%m/%Y")
+                    elif isinstance(field, DateTimeField):
+                        data = data.strftime("%d/%m/%Y %H:%M")
+                    elif isinstance(data, File):
+                        if unicode(data):
+                            data = mark_safe('<a href="%s" class="download-link">%s</a>' % (data.url, os.path.basename(unicode(data))))
+                        else:
+                            data = ''
+                    elif isinstance(field, BooleanField):
+                        data = data and u'Sim' or u'Não'
+
+            row.append(data)
+        if has_add_info:
+            if obj.date_add:
+                date_add = obj.date_add.strftime("%d/%m/%Y %H:%M")
+            else:
+                date_add = "--"
+            if obj.user_add_id:
+                user_add = obj.user_add.get_full_name() or obj.user_add
+            else:
+                user_add = "--"
+            row.append(mark_safe('<span class="discreet">%s<br />%s</span>' % (user_add, date_add)))
+        if has_upd_info:
+            if obj.date_upd:
+                date_upd = obj.date_upd.strftime("%d/%m/%Y %H:%M")
+            else:
+                date_upd = "--"
+            if obj.user_upd_id:
+                user_upd = obj.user_upd.get_full_name() or obj.user_upd
+            else:
+                user_upd = "--"
+            row.append(mark_safe('<span class="discreet">%s<br />%s</span>' % (user_upd, date_upd)))
+        rows.append(row)
+
+    return render(request, [
+            '%s/simple_crud_%s.html' % (app_name, model_name),
+            'childcrud/simple_crud.html',
+        ],
+        {
+            'object_list': object_list,
+            'form': form,
+            'headers': headers,
+            'cols': cols,
+            'rows': rows,
+            'verbose_name': model._meta.verbose_name.capitalize(),
+            'verbose_name_plural': model._meta.verbose_name_plural.capitalize(),
+            'base_url': base_url,
+            'use_plural': len(rows) != 1
+        }
+    )
 
 
 @login_required
