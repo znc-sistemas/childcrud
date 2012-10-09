@@ -34,27 +34,29 @@ def childcrud_config(parser, token):
             name, value = match.groups()
             options[name] = mark_safe(value)
 
-    if not (parent[0] == parent[-1] and parent[0] in ('"', "'")):
-        raise template.TemplateSyntaxError, "%r tag's parent argument should be in quotes" % tag_name
-    if not (child[0] == child[-1] and child[0] in ('"', "'")):
-        raise template.TemplateSyntaxError, "%r tag's child argument should be in quotes" % tag_name
-    parent = parent[1:-1]
-    child = child[1:-1]
+    #if not (parent[0] == parent[-1] and parent[0] in ('"', "'")):
+    #    raise template.TemplateSyntaxError, "%r tag's parent argument should be in quotes" % tag_name
+    #if not (child[0] == child[-1] and child[0] in ('"', "'")):
+    #    raise template.TemplateSyntaxError, "%r tag's child argument should be in quotes" % tag_name
+    #parent = parent[1:-1]
+    #child = child[1:-1]
 
     return ChildCRUDNode(parent, parent_id, child, options)
 
 
 class ChildCRUDNode(template.Node):
     def __init__(self, parent, parent_id, child, options=None):
-        self.parent_string = parent
+        self.parent_string = template.Variable(parent)
         self.parent_id = template.Variable(parent_id)
-        self.child_string = child
+        self.child_string = template.Variable(child)
         self.options = options
 
     def render(self, context):
+        parent_string = self.parent_string.resolve(context)
         parent_id = self.parent_id.resolve(context)
-        variable_name = '%s-%s' % (self.parent_string.split('.')[-1], self.child_string.split('.')[-1])
-        context.dicts[0][variable_name] = ChildCrud(self.parent_string, parent_id, self.child_string, self.options)
+        child_string = self.child_string.resolve(context)
+        variable_name = '%s-%s' % (parent_string.split('.')[-1], child_string.split('.')[-1])
+        context.dicts[0][variable_name] = ChildCrud(parent_string, parent_id, child_string, self.options)
         t = template.loader.get_template('childcrud/childcrud_config.js')
         ctx = template.Context({'variable_name': variable_name,
                                 'urls': context.dicts[0][variable_name].get_urls(),
@@ -69,28 +71,25 @@ def childcrud_html(parser, token):
         tag_name, parent, parent_id, child = token.split_contents()
     except ValueError:
         raise template.TemplateSyntaxError, "%r tag requires exactly three arguments" % token.contents.split()[0]
-    if not (parent[0] == parent[-1] and parent[0] in ('"', "'")):
-        raise template.TemplateSyntaxError, "%r tag's parent argument should be in quotes" % tag_name
-    if not (child[0] == child[-1] and child[0] in ('"', "'")):
-        raise template.TemplateSyntaxError, "%r tag's child argument should be in quotes" % tag_name
-    parent = parent[1:-1]
-    child = child[1:-1]
 
     return ChildCRUDHTMLNode(parent, parent_id, child)
 
 
 class ChildCRUDHTMLNode(template.Node):
     def __init__(self, parent, parent_id, child):
-        self.parent_string = parent
+        self.parent_string = template.Variable(parent)
         self.parent_id = template.Variable(parent_id)
-        self.child_string = child
-        self.variable_name = '%s-%s' % (self.parent_string.split('.')[-1], self.child_string.split('.')[-1])
+        self.child_string = template.Variable(child)
 
     def render(self, context):
+        parent_string = self.parent_string.resolve(context)
+        parent_id = self.parent_id.resolve(context)
+        child_string = self.child_string.resolve(context)
+        self.variable_name = '%s-%s' % (parent_string.split('.')[-1], child_string.split('.')[-1])
         try:
             cfg = context.dicts[0][self.variable_name]
         except KeyError:
-            raise Exception("Chamando tag childcrud_html sem chamar childcrud_config antes para '%s e %s'" % (self.parent_string, self.child_string))
+            raise Exception("Chamando tag childcrud_html sem chamar childcrud_config antes para '%s e %s'" % (parent_string, child_string))
         dialog = cfg.options.get('dialog', '').replace("'", "").replace('"', '')
         verbose_name = ''
         if dialog:
