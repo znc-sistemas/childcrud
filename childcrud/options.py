@@ -29,7 +29,10 @@ class ChildModelAdmin(ModelAdmin):
             # additional code to exclude parent FK and other relevant fields
 
             if hasattr(self.form, '_meta'):
-                exclude_fields = list(self.form._meta.exclude)
+                if self.form._meta.exclude:
+                    exclude_fields = list(self.form._meta.exclude)
+                else:
+                    raise TypeError("add the parent to exclude (can not be blank)")
             else:
                 exclude_fields = []
 
