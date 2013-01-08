@@ -2,6 +2,7 @@
 from django.contrib import admin
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.contenttypes.models import ContentType
 from django.core.files import File
 from django.db.models import get_model, DateField, DateTimeField, BooleanField
 from django.http import Http404
@@ -283,12 +284,21 @@ def ajax_list(request, p_app_name, p_model_name, p_id, app_name, model_name):
     if (hasattr(model_admin, 'check_can_edit')):
         can_edit = model_admin.check_can_edit(request, parent_obj=inst_parent)
 
+    # TODO: move to ChildModelAdmin
+    if model_admin.is_generic_fk:
+        kw = {model_admin.fk_field: str(p_id), model_admin.ct_field: ContentType.objects.get_for_model(parent_model)}
+        fields_exclude_from_list = [model_admin.fk_field, model_admin.ct_field]
+    else:
+        kw = {model_admin.fk_name: str(p_id)}
+        fields_exclude_from_list = [model_admin.fk_name, ]
+
     msg = ''
     if request.method == "POST":
         del_id = request.POST.get('del', '')
         if del_id:
             # delete objects from the list
-            del_kw = {model_admin.fk_name: str(p_id), 'pk': str(del_id)}
+            del_kw = kw.copy()
+            del_kw['pk'] = str(del_id)
 
             #obj = model.objects.filter(**del_kw)
             obj = model_admin.queryset(request).filter(**del_kw)
@@ -296,7 +306,6 @@ def ajax_list(request, p_app_name, p_model_name, p_id, app_name, model_name):
             model_admin.delete_model(request, obj, parent_obj=inst_parent)
             msg = u'Item excluído com sucesso!'
 
-    kw = {model_admin.fk_name: str(p_id)}
     object_list = model_admin.queryset(request).filter(**kw)
 
     headers = []
@@ -316,14 +325,16 @@ def ajax_list(request, p_app_name, p_model_name, p_id, app_name, model_name):
     else:
         fields = model._meta.fields
 
+    fields_exclude_from_list.extend(['user_upd', 'date_upd', 'user_add', 'date_add',])
+
     for field in fields:
-        if not field.primary_key and field.name not in (model_admin.fk_name, 'user_upd', 'date_upd', 'user_add', 'date_add'):
+        if not field.primary_key and field.name not in fields_exclude_from_list:
             headers.append(field.verbose_name.capitalize())
         if field.name == 'user_add':
             has_add_info = True
         if field.name == 'user_upd':
             has_upd_info = True
-        if field.name not in (model_admin.fk_name, 'user_upd', 'date_upd', 'user_add', 'date_add'):
+        if field.name not in fields_exclude_from_list:
             cols.append(field.name)
     if has_add_info:
         headers.append(u'Cadastro')

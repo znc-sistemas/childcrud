@@ -1,5 +1,14 @@
 from django.contrib.admin.options import ModelAdmin
+from django.contrib.contenttypes.generic import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.forms.models import _get_foreign_key
+
+
+def get_generic_fk_field(model):
+    for name, field in model.__dict__.items():
+        if isinstance(field, GenericForeignKey):
+            return field
+    return None
 
 
 class ChildModelAdmin(ModelAdmin):
@@ -8,6 +17,7 @@ class ChildModelAdmin(ModelAdmin):
     """
     parent_model = None
     fk_name = None
+    is_generic_fk = False
 
     # Flag to indicate if the form (ModelForm) needs to be instantiated with parent model
     form_receives_parent = False
@@ -16,8 +26,16 @@ class ChildModelAdmin(ModelAdmin):
         # TODO: should use property on parent_model
         self.parent_model = parent_model
         if self.parent_model:
-            fk = _get_foreign_key(self.parent_model, self.model, fk_name)
-            self.fk_name = fk.name
+            if self.is_generic_fk:
+                # Generic FK (GenericRelation)
+                field = get_generic_fk_field(self.model)
+                if field:
+                    self.fk_field = field.fk_field
+                    self.ct_field = field.ct_field
+            else:
+                # Normal FK
+                fk = _get_foreign_key(self.parent_model, self.model, fk_name)
+                self.fk_name = fk.name
 
     def get_form(self, request, obj=None, parent_model=None, fk_name=None, **kwargs):
         """Returns a Form class, excluding the appropriate fields"""
@@ -36,7 +54,10 @@ class ChildModelAdmin(ModelAdmin):
             else:
                 exclude_fields = []
 
-            exclude_fields.extend([self.fk_name])
+            if self.is_generic_fk:
+                exclude_fields.extend([self.fk_field, self.ct_field])
+            else:
+                exclude_fields.extend([self.fk_name])
 
             if 'user_add' in self.model._meta.get_all_field_names():
                 exclude_fields.extend(['user_add', 'data_add'])
@@ -54,9 +75,14 @@ class ChildModelAdmin(ModelAdmin):
 
     def save_model(self, request, obj, form, change, parent_obj=None):
         if parent_obj:
-            if not change and self.fk_name:
+            if not change:
                 # saves the parent FK object
-                setattr(obj, self.fk_name, parent_obj)
+                if self.is_generic_fk:
+                    ct = ContentType.objects.get_for_model(parent_obj)
+                    setattr(obj, self.fk_field, parent_obj.pk)
+                    setattr(obj, self.ct_field, ct)
+                else:
+                    setattr(obj, self.fk_name, parent_obj)
             if hasattr(obj, 'user_upd_id'):
                 obj.user_upd = request.user
             if hasattr(obj, 'user_add_id'):
@@ -71,3 +97,4 @@ class ChildModelAdmin(ModelAdmin):
         obj.delete()
 
         # can include additional actions logging here
+
