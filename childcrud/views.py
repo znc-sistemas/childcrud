@@ -13,6 +13,8 @@ from django.core.urlresolvers import reverse
 
 import os
 
+from childcrud.settings import CHILDCRUD_UI
+
 
 @login_required
 def simple_crud(request, app_name, model_name, id=None, form_class=None):
@@ -253,7 +255,7 @@ def ajax_create_update(request, p_app_name, p_model_name, p_id, app_name, model_
 
     return render_to_response(['%s/childcrud_%s_form.html' % (app_name, variable_name.lower()),
                                '%s/childcrud_%s_form.html' % (app_name, model_name.lower()),
-                               'childcrud/childcrud_form.html'],
+                               'childcrud/%s/childcrud_form.html' % CHILDCRUD_UI],
                               {'form': form, 'action': request.path,
                                'msg': msg, 'variable_name': variable_name,
                                'parent_object': inst_parent,
@@ -389,7 +391,7 @@ def ajax_list(request, p_app_name, p_model_name, p_id, app_name, model_name):
 
     return render_to_response(['%s/childcrud_%s_list.html' % (app_name, variable_name.lower()),
                                '%s/childcrud_%s_list.html' % (app_name, model_name.lower()),
-                               'childcrud/childcrud_list.html'],
+                               'childcrud/%s/childcrud_list.html' % CHILDCRUD_UI],
                               {'object_list': object_list,
                                'parent_object': inst_parent,
                                'headers': headers,

@@ -1,10 +1,13 @@
 from django import template
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.contrib import admin
 from django.db.models import get_model
 from django.utils.safestring import mark_safe
 
 import re
+
+CHILDCRUD_UI = getattr(settings, 'CHILDCRUD_UI', 'jqueryui')
 
 register = template.Library()
 
@@ -94,7 +97,7 @@ class ChildCRUDHTMLNode(template.Node):
         verbose_name = ''
         if dialog:
             verbose_name = cfg.child_model._meta.verbose_name.capitalize()
-        t = template.loader.get_template('childcrud/childcrud_config.html')
+        t = template.loader.get_template('childcrud/%s/childcrud_config.html' % CHILDCRUD_UI)
         ctx = template.Context({'variable_name': self.variable_name, 'dialog': dialog, 'verbose_name': verbose_name})
         return t.render(ctx)
 

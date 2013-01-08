@@ -12,7 +12,16 @@ function ajax_show_form(name, id, cb, form_load_cb){
     }
 
     if(childcrud_config[name].dialog == 'form'){
-        jQuery("#" + name + "-dialog").dialog('open');
+        var dialog_div = jQuery("#" + name + "-dialog");
+        var is_boostrap_modal = dialog_div.hasClass('modal'); 
+        if(is_boostrap_modal) {
+            // Boostrap Modal
+            dialog_div.modal('show');
+        } else {
+            // Jquery UI Modal
+            dialog_div.dialog('open');
+        }
+        
     } else {
 	   jQuery("#" + name + "-bt").hide();
 	   jQuery("#" + name + "-wait").show();
@@ -59,7 +68,12 @@ function ajax_show_form(name, id, cb, form_load_cb){
 						jQuery("#" + name + "-bt").show();
 					}
 					if(childcrud_config[name].dialog == 'form'){
-                        jQuery("#" + name + "-dialog").dialog('close');
+                        if(is_boostrap_modal){
+                            jQuery("#" + name + "-dialog").modal('hide');
+                        } else {
+                            jQuery("#" + name + "-dialog").dialog('close');    
+                        }
+                        
                     }
                     if(cb != null){
                         cb();
@@ -124,18 +138,24 @@ function ajax_init_config(name){
 
 
 	if(childcrud_config[name].dialog){
-		if(!gen_ajax_dialogs[name]){
-	        jQuery("#" + name + "-dialog").dialog({
-	                 bgiframe: true,
-	                 width: w,
-	                 height: h,
-	                 modal: true,
-	                 autoOpen: false,
-	                 closeOnEscape: false,
-	                 close: childcrud_config[name].close_cb
-	        });
-            gen_ajax_dialogs[name] = true;
-		}
+        var is_boostrap_modal =  jQuery("#" + name + "-dialog").hasClass('modal');
+        if(is_boostrap_modal){
+            jQuery("#" + name + "-dialog").css({'width': w, 'margin': '-250px 0 0 -' + (w/2) + 'px'});
+            jQuery("#" + name + "-dialog").find('.modal-body').css('max-height', h);
+        } else {
+            if(!gen_ajax_dialogs[name]){
+                jQuery("#" + name + "-dialog").dialog({
+                         bgiframe: true,
+                         width: w,
+                         height: h,
+                         modal: true,
+                         autoOpen: false,
+                         closeOnEscape: false,
+                         close: childcrud_config[name].close_cb
+                });
+                gen_ajax_dialogs[name] = true;
+            }            
+        }
 	}
 
 	if(childcrud_config[name].sticky_form){
@@ -180,7 +200,14 @@ function ajax_cancel_form(name){
 	jQuery("#" + name + "-form").fadeOut();
 	jQuery("#" + name + "-bt").show();
 	if(childcrud_config[name].dialog == 'form'){
-		jQuery("#" + name + "-dialog").dialog('close');
+        var dialog_div = jQuery('#' + name + '-dialog');
+        var is_boostrap_modal = dialog_div.hasClass('modal');
+        if(is_boostrap_modal) {
+            dialog_div.modal('hide');
+        } else {
+            dialog_div.dialog('close');
+        }
+        
 	}
 
 	childcrud_config[name]['is_editing'] = false;
@@ -191,6 +218,13 @@ function ajax_show_dialog(name, url_new, url_list){
 	childcrud_config[name].urls['new'] = url_new;
 	childcrud_config[name].urls.edit = url_new.replace('/new/', '/0/');
 	jQuery("#" + name + "-bt").show();
-	jQuery('#' + name + '-dialog').dialog('open');
+    var dialog_div = jQuery('#' + name + '-dialog');
+    var is_boostrap_modal = dialog_div.hasClass('modal');
+    if(is_boostrap_modal) {
+        dialog_div.dialog('show');
+    } else {
+        dialog_div.dialog('open');
+    }
+	
 	ajax_init_list(name);
 }
