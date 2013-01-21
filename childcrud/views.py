@@ -186,13 +186,15 @@ def fk_create_update(request, app_name, model_name, id=None, form_class=None):
     form = form_class(request.POST or None, request.FILES or None, instance=instance)
     msg = ''
     obj = None
+    variable_name = model_name
+
     if request.method == 'POST':
         if form.is_valid():
             obj = form.save()
             msg = id and u"Item atualizado com sucesso!" or u"Novo item criado com sucesso!"
 
     return render_to_response(['%s/childcrud_%s_form.html' % (app_name, model_name),
-                               'childcrud/fkedit_form.html'],
+                                'childcrud/%s/fkedit_form.html' % CHILDCRUD_UI, ],
                                {
                                     'field_id': field_id,
                                     'action_url': action_url,
@@ -201,6 +203,7 @@ def fk_create_update(request, app_name, model_name, id=None, form_class=None):
                                     'object': obj,
                                     'msg': msg,
                                     'show_form': True,
+                                    'variable_name': variable_name,
                                 },
                                context_instance=RequestContext(request))
 
