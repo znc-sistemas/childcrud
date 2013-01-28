@@ -1,0 +1,20 @@
+{% load bootstrap_toolkit %}
+{% if msg %}
+<div class="info">{{ msg }}</div>
+    <script type="text/javascript">
+        {% if is_new %}
+            jQuery('#{{ field_id }}').append('<option value="{{ object.pk }}">{{ object }}</option>').val('{{ object.pk }}');
+        {% else %}
+            jQuery('#{{ field_id }} option:selected').html('{{ object }}');
+        {% endif %}
+        jQuery('#{{ field_id }}-dialog').dialog('close');
+        changeFK(jQuery('#{{ field_id }}')[0]);
+    </script>
+{% else %}
+    <form method="POST" id="{{ field_id }}-form" action="{{ action_url }}?fid={{ field_id }}" onsubmit="return fk_submit(this)">
+        {% csrf_token %}
+        {{ form|as_bootstrap }}
+        <input type="submit" class="btn btn-primary" value="Gravar">
+        <a href="#" class="btn" onclick="ajax_cancel_form('{{ variable_name }}');">Cancelar</a>
+    </form>
+{% endif %}

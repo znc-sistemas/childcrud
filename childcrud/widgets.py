@@ -5,6 +5,9 @@ from django.core.urlresolvers import reverse
 from django.utils.safestring import mark_safe
 from django.utils import simplejson
 import re
+#from templatetags import CHILDCRUD_UI
+
+CHILDCRUD_UI = getattr(settings, 'CHILDCRUD_UI', 'jqueryui')
 
 
 class SelectFKWidget(Select):
@@ -32,9 +35,19 @@ class SelectFKWidget(Select):
                 'static_url': settings.STATIC_URL,
                 'options': op_str
             }
+
             bts = u"""<a href="#" onclick="return fk_dialog(this, \'%(url_new)s\', \'%(titulo)s\', %(options)s)" title="Adicionar..."><i class="icon-plus"></i></a>
-            <a href="#" id="bt-%(id)s-editar" onclick="return fk_dialog(this, \'%(url_upd)s\', \'%(titulo)s\', %(options)s)" title="Editar..." %(style)s><i class="icon-edit"></i></a>
-            <div id="%(id)s-dialog"></div>""" % params
+            <a href="#" id="bt-%(id)s-editar" onclick="return fk_dialog(this, \'%(url_upd)s\', \'%(titulo)s\', %(options)s)" title="Editar..." %(style)s><i class="icon-edit"></i></a>"""
+
+            if CHILDCRUD_UI == 'bootstrap':
+                bts = bts + u"""<div id="%(id)s-dialog" class="modal hide fade">
+                <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button><h3></h3></div>
+                <div class="modal-body"></div>
+                </div>"""
+            else:
+                bts = bts + u"""<div id="%(id)s-dialog"></div>"""
+
+            bts = bts % params
         return mark_safe(u'%s%s' % (output, bts))
 
     class Media:
