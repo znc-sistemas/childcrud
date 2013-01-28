@@ -97,4 +97,3 @@ class ChildModelAdmin(ModelAdmin):
         obj.delete()
 
         # can include additional actions logging here
-
