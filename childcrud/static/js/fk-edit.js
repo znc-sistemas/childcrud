@@ -9,9 +9,16 @@ function changeFK(the_select){
 
 function fk_submit(the_form){
     var id = "#" + jQuery(the_form).attr('id').replace('-form', '-dialog');
+    var id_target = id;
+    var dialog_div = jQuery(id);
+    var is_boostrap_modal = dialog_div.hasClass('modal');
+    if (is_boostrap_modal) {
+        id_target = id + ' .modal-body';
+    }
+
 
     jQuery(the_form).ajaxSubmit({
-        target: id
+        target: id_target
     });
     jQuery(the_form).find('input[type]=submit').attr('disabled', true);
 

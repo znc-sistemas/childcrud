@@ -183,7 +183,13 @@ def fk_create_update(request, app_name, model_name, id=None, form_class=None):
     if not form_class:
         form_class = model_admin.get_form(request, instance)
 
-    form = form_class(request.POST or None, request.FILES or None, instance=instance)
+    kw = {'instance': instance}
+
+    # pass the request to the form constructor?
+    if getattr(model_admin, 'form_receives_request', False):
+        kw['request'] = request
+
+    form = form_class(request.POST or None, request.FILES or None, **kw)
     msg = ''
     obj = None
     variable_name = model_name
