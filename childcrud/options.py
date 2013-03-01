@@ -85,8 +85,9 @@ class ChildModelAdmin(ModelAdmin):
                     setattr(obj, self.fk_name, parent_obj)
             if hasattr(obj, 'user_upd_id'):
                 obj.user_upd = request.user
-            if hasattr(obj, 'user_add_id'):
-                obj.user_add = request.user
+            if not obj.pk:
+                if hasattr(obj, 'user_add_id'):
+                    obj.user_add = request.user
 
         obj.save()
         form.save_m2m()
