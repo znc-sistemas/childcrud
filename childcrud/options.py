@@ -90,7 +90,8 @@ class ChildModelAdmin(ModelAdmin):
                     obj.user_add = request.user
 
         obj.save()
-        form.save_m2m()
+        if hasattr(form, 'save_m2m'):
+            form.save_m2m()
 
         # can include additional actions logging here
 
