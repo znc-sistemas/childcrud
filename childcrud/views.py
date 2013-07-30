@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404, render_to_response, render, redi
 from django.template import RequestContext
 from django.utils.safestring import mark_safe
 from django.core.urlresolvers import reverse
+from django.template.defaultfilters import date as date_filter
 
 import os
 
@@ -109,9 +110,9 @@ def simple_crud(request, app_name, model_name, id=None, form_class=None):
                     data = '--'
                 else:
                     if isinstance(field, DateField):
-                        data = data.strftime("%d/%m/%Y")
+                        data = date_filter(data, "d/m/Y")
                     elif isinstance(field, DateTimeField):
-                        data = data.strftime("%d/%m/%Y %H:%M")
+                        data = date_filter(data, "d/m/Y H:i")
                     elif isinstance(data, File):
                         if unicode(data):
                             data = mark_safe('<a href="%s" class="download-link">%s</a>' % (data.url, os.path.basename(unicode(data))))
@@ -123,7 +124,7 @@ def simple_crud(request, app_name, model_name, id=None, form_class=None):
             row.append(data)
         if has_add_info:
             if obj.date_add:
-                date_add = obj.date_add.strftime("%d/%m/%Y %H:%M")
+                date_add = date_filter(obj.date_add, "d/m/Y H:i")
             else:
                 date_add = "--"
             if obj.user_add_id:
@@ -133,7 +134,7 @@ def simple_crud(request, app_name, model_name, id=None, form_class=None):
             row.append(mark_safe('<span class="discreet">%s<br />%s</span>' % (user_add, date_add)))
         if has_upd_info:
             if obj.date_upd:
-                date_upd = obj.date_upd.strftime("%d/%m/%Y %H:%M")
+                date_upd = date_filter(obj.date_upd, "d/m/Y H:i")
             else:
                 date_upd = "--"
             if obj.user_upd_id:
@@ -367,9 +368,9 @@ def ajax_list(request, p_app_name, p_model_name, p_id, app_name, model_name):
                     data = '--'
                 else:
                     if isinstance(field, DateField):
-                        data = data.strftime("%d/%m/%Y")
+                        data = date_filter(data, "d/m/Y")
                     elif isinstance(field, DateTimeField):
-                        data = data.strftime("%d/%m/%Y %H:%M")
+                        data = date_filter(data, "d/m/Y H:i")
                     elif isinstance(data, File):
                         if unicode(data):
                             data = mark_safe('<a href="%s" class="download-link">%s</a>' % (data.url, os.path.basename(unicode(data))))
@@ -378,7 +379,7 @@ def ajax_list(request, p_app_name, p_model_name, p_id, app_name, model_name):
             row.append(data)
         if has_add_info:
             if obj.date_add:
-                date_add = obj.date_add.strftime("%d/%m/%Y %H:%M")
+                date_add = date_filter(obj.date_add, "d/m/Y H:i")
             else:
                 date_add = "--"
             if obj.user_add_id:
@@ -388,7 +389,7 @@ def ajax_list(request, p_app_name, p_model_name, p_id, app_name, model_name):
             row.append(mark_safe('<span class="discreet">%s<br />%s</span>' % (user_add, date_add)))
         if has_upd_info:
             if obj.date_upd:
-                date_upd = obj.date_upd.strftime("%d/%m/%Y %H:%M")
+                date_upd = date_filter(obj.date_upd, "d/m/Y H:i")
             else:
                 date_upd = "--"
             if obj.user_upd_id:
