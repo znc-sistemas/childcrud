@@ -140,7 +140,7 @@ function ajax_init_config(name){
 	if(childcrud_config[name].dialog){
         var is_boostrap_modal =  jQuery("#" + name + "-dialog").hasClass('modal');
         if(is_boostrap_modal){
-            jQuery("#" + name + "-dialog").css({'width': w, 'margin': '-250px 0 0 -' + (w/2) + 'px'});
+            jQuery("#" + name + "-dialog").css({'width': w, 'margin': '0 0 0 -' + (w/2) + 'px'});
             jQuery("#" + name + "-dialog").find('.modal-body').css('max-height', h);
         } else {
             if(!gen_ajax_dialogs[name]){
@@ -221,7 +221,7 @@ function ajax_show_dialog(name, url_new, url_list){
     var dialog_div = jQuery('#' + name + '-dialog');
     var is_boostrap_modal = dialog_div.hasClass('modal');
     if(is_boostrap_modal) {
-        dialog_div.dialog('show');
+        dialog_div.modal('show');
     } else {
         dialog_div.dialog('open');
     }
