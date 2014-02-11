@@ -20,8 +20,10 @@ def childcrud_config(parser, token):
     # split_contents() knows not to split quoted strings.
     bits = token.split_contents()
     if len(bits) < 4:
-        raise template.TemplateSyntaxError("'%s' takes at least three arguments"
-            " (parent, parent_id, child)" % bits[0])
+        raise template.TemplateSyntaxError(
+            "'%s' takes at least three arguments"
+            " (parent, parent_id, child)" % bits[0]
+        )
     tag_name = bits[0]
     parent = bits[1]
     parent_id = bits[2]
@@ -120,24 +122,37 @@ class ChildCrud(object):
                 setattr(self.child_model_admin, 'sticky_form', True)
 
     def get_urls(self):
-        urls = {'new': reverse('childcrud-create',
-                               kwargs={'p_app_name': self.parent_app,
-                                       'p_model_name': self.parent_name,
-                                       'p_id': self.parent_id,
-                                       'app_name': self.child_app,
-                                       'model_name': self.child_name}),
-                'list': reverse('childcrud-list',
-                                kwargs={'p_app_name': self.parent_app,
-                                        'p_model_name': self.parent_name,
-                                        'p_id': self.parent_id,
-                                        'app_name': self.child_app,
-                                        'model_name': self.child_name}),
-                'edit': reverse('childcrud-update',
-                                kwargs={'p_app_name': self.parent_app,
-                                        'p_model_name': self.parent_name,
-                                        'p_id': self.parent_id,
-                                        'app_name': self.child_app,
-                                        'model_name': self.child_name,
-                                        'id': 0}),
+        urls = {
+            'new': reverse(
+                'childcrud-create',
+                kwargs={
+                    'p_app_name': self.parent_app,
+                    'p_model_name': self.parent_name,
+                    'p_id': self.parent_id,
+                    'app_name': self.child_app,
+                    'model_name': self.child_name
+                }
+            ),
+            'list': reverse(
+                'childcrud-list',
+                kwargs={
+                    'p_app_name': self.parent_app,
+                    'p_model_name': self.parent_name,
+                    'p_id': self.parent_id,
+                    'app_name': self.child_app,
+                    'model_name': self.child_name
+                }
+            ),
+            'edit': reverse(
+                'childcrud-update',
+                kwargs={
+                    'p_app_name': self.parent_app,
+                    'p_model_name': self.parent_name,
+                    'p_id': self.parent_id,
+                    'app_name': self.child_app,
+                    'model_name': self.child_name,
+                    'id': 0
+                }
+            ),
         }
         return urls
