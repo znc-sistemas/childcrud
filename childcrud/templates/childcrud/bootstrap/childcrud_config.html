@@ -14,7 +14,7 @@
         <h3>{{ verbose_name }}</h3>
       </div>
       <div class="modal-body">{% endifequal %}
-      <form id="{{ variable_name }}-form" method="post"></form>
+      <form id="{{ variable_name }}-form" method="post" enctype="multipart/form-data"></form>
       {% ifequal dialog "form" %}</div></div>{% endifequal %}
       <div id="{{ variable_name }}-list"></div>
       {% ifequal dialog "all" %}</div></div>{% endifequal %}
