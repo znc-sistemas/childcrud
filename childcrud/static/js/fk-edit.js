@@ -20,7 +20,7 @@ function fk_submit(the_form){
     jQuery(the_form).ajaxSubmit({
         target: id_target
     });
-    jQuery(the_form).find('input[type]=submit').attr('disabled', true);
+    jQuery(the_form).find('input[type=submit]').attr('disabled', true);
 
     return false;
 }
