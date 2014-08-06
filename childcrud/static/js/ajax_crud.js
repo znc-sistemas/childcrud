@@ -203,18 +203,24 @@ function ajax_init_list(name, skipformreload){
 function ajax_cancel_form(name){
     jQuery("#" + name + "-form").fadeOut();
     jQuery("#" + name + "-bt").show();
-    if(childcrud_config[name].dialog == 'form'){
-        var dialog_div = jQuery('#' + name + '-dialog');
-        var is_boostrap_modal = dialog_div.hasClass('modal');
-        if(is_boostrap_modal) {
-            dialog_div.modal('hide');
-        } else {
-            dialog_div.dialog('close');
-        }
-        
+    var close_dialog = false;
+    if(childcrud_config[name] === undefined) {
+        close_dialog = true;
+    } else {
+        childcrud_config[name]['is_editing'] = false;
+        close_dialog = childcrud_config[name]['dialog'] == 'form';
     }
-
-    childcrud_config[name]['is_editing'] = false;
+    if(close_dialog) {
+        var dialog_div = jQuery('#' + name + '-dialog');
+        if(dialog_div) {
+            var is_boostrap_modal = dialog_div.hasClass('modal');
+            if(is_boostrap_modal) {
+                dialog_div.modal('hide');
+            } else {
+                dialog_div.dialog('close');
+            }
+        }
+    }
 }
 
 function ajax_show_dialog(name, url_new, url_list){

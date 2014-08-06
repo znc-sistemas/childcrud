@@ -78,7 +78,7 @@ function fk_dialog(the_button, url, title, options) {
 }
 
 function ajax_cancel_form(name) {
-    var dialog_div = jQuery('#id_' + name + '-dialog');
+    var dialog_div = jQuery('#' + name + '-dialog');
     var is_boostrap_modal = dialog_div.hasClass('modal');
     
     if(is_boostrap_modal) {
