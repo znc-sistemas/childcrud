@@ -46,12 +46,29 @@ def simple_crud(request, app_name, model_name, id=None, form_class=None):
         ids_delete_list = request.POST.getlist('delete')
         if request.POST.get('delete_button', ''):
             # delete
-            # TODO: check related model to prevenet data loss on delete
+            ct_deleted = 0
+            delete_errors = []
             if ids_delete_list:
-                [i.delete() for i in model.objects.filter(id__in=ids_delete_list)]
-                plural = len(ids_delete_list) > 1
-                msg = u'%d ite%s excluído%s.' % (len(ids_delete_list), plural and 'ns' or 'm', plural and 's' or '')
+                for obj in model.objects.filter(id__in=ids_delete_list):
+                    try:
+                        model_admin.delete_model(request, obj)
+                        ct_deleted += 1
+                    except Exception as error:
+                        delete_errors.append(unicode(error))
+
+                plural = ct_deleted > 1
+                msg = u'%d ite%s excluído%s.' % (ct_deleted, plural and 'ns' or 'm', plural and 's' or '')
                 messages.success(request, msg)
+                if delete_errors:
+                    errors_plural = len(delete_errors) > 1
+                    msg = u'%d ite%s não fo%s excluído%s: %s' % (
+                        len(delete_errors),
+                        'ns' if errors_plural else 'm',
+                        'ram' if errors_plural else 'i',
+                        's' if errors_plural else '',
+                        ', '.join(delete_errors)
+                    )
+                    messages.warning(request, msg)
             else:
                 msg = u'Nenhum item excluído. Selecione algum antes!'
                 messages.warning(request, msg)
@@ -314,9 +331,11 @@ def ajax_list(request, p_app_name, p_model_name, p_id, app_name, model_name):
 
             #obj = model.objects.filter(**del_kw)
             obj = model_admin.queryset(request).filter(**del_kw)
-
-            model_admin.delete_model(request, obj, parent_obj=inst_parent)
             msg = u'Item excluído com sucesso!'
+            try:
+                model_admin.delete_model(request, obj, parent_obj=inst_parent)
+            except Exception as erro:
+                msg = u'Item não excluído: %s' % unicode(erro)
 
     object_list = model_admin.queryset(request).filter(**kw)
 
