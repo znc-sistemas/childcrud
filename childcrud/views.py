@@ -161,7 +161,9 @@ def simple_crud(request, app_name, model_name, id=None, form_class=None):
             row.append(mark_safe('<span class="discreet">%s<br />%s</span>' % (user_upd, date_upd)))
         rows.append(row)
 
-    return render(request, [
+    return render(
+        request,
+        [
             '%s/simple_crud_%s.html' % (app_name, model_name),
             'childcrud/simple_crud.html',
         ],
@@ -217,19 +219,22 @@ def fk_create_update(request, app_name, model_name, id=None, form_class=None):
             obj = form.save()
             msg = id and u"Item atualizado com sucesso!" or u"Novo item criado com sucesso!"
 
-    return render_to_response(['%s/childcrud_%s_form.html' % (app_name, model_name),
-                                'childcrud/%s/fkedit_form.html' % CHILDCRUD_UI, ],
-                               {
-                                    'field_id': field_id,
-                                    'action_url': action_url,
-                                    'form': form,
-                                    'is_new': not id,
-                                    'object': obj,
-                                    'msg': msg,
-                                    'show_form': True,
-                                    'variable_name': variable_name,
-                                },
-                               context_instance=RequestContext(request))
+    return render_to_response(
+        [
+            '%s/childcrud_%s_form.html' % (app_name, model_name),
+            'childcrud/%s/fkedit_form.html' % CHILDCRUD_UI,
+        ],
+        {
+            'field_id': field_id,
+            'action_url': action_url,
+            'form': form,
+            'is_new': not id,
+            'object': obj,
+            'msg': msg,
+            'show_form': True,
+            'variable_name': variable_name,
+        },
+        context_instance=RequestContext(request))
 
 
 @login_required
@@ -329,15 +334,21 @@ def ajax_list(request, p_app_name, p_model_name, p_id, app_name, model_name):
             del_kw = kw.copy()
             del_kw['pk'] = str(del_id)
 
-            #obj = model.objects.filter(**del_kw)
-            obj = model_admin.queryset(request).filter(**del_kw)
+            # obj = model.objects.filter(**del_kw)
+            try:
+                obj = model_admin.queryset(request).filter(**del_kw)
+            except Exception:
+                obj = model_admin.get_queryset(request).filter(**del_kw)
             msg = u'Item excluído com sucesso!'
             try:
                 model_admin.delete_model(request, obj, parent_obj=inst_parent)
             except Exception as erro:
                 msg = u'Item não excluído: %s' % unicode(erro)
 
-    object_list = model_admin.queryset(request).filter(**kw)
+    try:
+        object_list = model_admin.queryset(request).filter(**kw)
+    except Exception:
+        object_list = model_admin.get_queryset(request).filter(**kw)
 
     headers = []
     cols = []
@@ -356,7 +367,7 @@ def ajax_list(request, p_app_name, p_model_name, p_id, app_name, model_name):
     else:
         fields = model._meta.fields
 
-    fields_exclude_from_list.extend(['user_upd', 'date_upd', 'user_add', 'date_add',])
+    fields_exclude_from_list.extend(['user_upd', 'date_upd', 'user_add', 'date_add', ])
 
     for field in fields:
         if not field.primary_key and field.name not in fields_exclude_from_list:
