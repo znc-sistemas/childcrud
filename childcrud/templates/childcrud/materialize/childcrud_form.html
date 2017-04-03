@@ -6,13 +6,20 @@
 {% endif %}
 
 {% if show_form %}
-    <div class="form-line">
+
         {% csrf_token %}
         {% form form=form %}{% endform %}
-    </div>
+
 
     <div class="submit-row align-left">
         <input type="submit" class="button-small default" value="{% if form.instance.pk %}Atualizar{% else %}Cadastrar{% endif %}" />
         <input type="button" class="button-small" value="Cancelar" onclick="ajax_cancel_form('{{ variable_name }}')" />
     </div>
+
+    <script type="text/javascript">
+    $(document).find('select')
+      .not('.disabled')
+      .not('.material-ignore')
+      .material_select()
+    </script>
 {% endif %}
