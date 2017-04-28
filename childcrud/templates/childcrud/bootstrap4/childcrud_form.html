@@ -1,0 +1,16 @@
+{% load bs3_form %}
+{% if msg %}
+    <div class="info">{{ msg|safe }}</div>
+{% endif %}
+{% if show_form %}
+    {% csrf_token %}
+    {% for field in form %}
+      {{ field|as_bs3 }}
+      
+    {% endfor %}
+    
+    <div class="submit-row align-left">
+        <input type="submit" class="btn btn-primary" value="{% if form.instance.pk %}Atualizar{% else %}Cadastrar{% endif %}" />
+        <input type="button" class="btn" value="Cancelar" onclick="ajax_cancel_form('{{ variable_name }}')" />
+    </div>
+{% endif %}
