@@ -5,7 +5,9 @@ from django.core.urlresolvers import reverse
 from django.utils.safestring import mark_safe
 from django.utils import simplejson
 import re
-#from templatetags import CHILDCRUD_UI
+from django.template import Context
+from django.template.loader import get_template
+# from templatetags import CHILDCRUD_UI
 
 CHILDCRUD_UI = getattr(settings, 'CHILDCRUD_UI', 'jqueryui')
 
@@ -26,28 +28,22 @@ class SelectFKWidget(Select):
                 op_str = re.sub(r"\'formload_cb\': \'(.*)\',", r"'formload_cb': \1,", op_str)
             else:
                 op_str = 'null'
-            params = {
+
+            context = {
                 'url_new': reverse('fk-create', kwargs={'app_name': self.rel._meta.app_label, 'model_name': self.rel._meta.module_name.lower()}),
                 'url_upd': reverse('fk-update', kwargs={'app_name': self.rel._meta.app_label, 'model_name': self.rel._meta.module_name.lower(), 'id': '0'}),
                 'titulo': self.rel._meta.verbose_name.capitalize(),
                 'id': attrs.get('id', name),
                 'style': not value and 'style="display:none"' or '',
                 'static_url': settings.STATIC_URL,
-                'options': op_str
+                'options': op_str,
+                'fkedit_modal_template': 'childcrud/{}/fkedit_modal.html'.format(CHILDCRUD_UI),
+                'fkedit_add_icon_template': 'childcrud/{}/fkedit_add_icon.html'.format(CHILDCRUD_UI),
+                'fkedit_edit_icon_template': 'childcrud/{}/fkedit_edit_icon.html'.format(CHILDCRUD_UI),
             }
 
-            bts = u"""<a href="#" onclick="return fk_dialog(this, \'%(url_new)s\', \'%(titulo)s\', %(options)s)" title="Adicionar..."><i class="icon-plus"></i></a>
-            <a href="#" id="bt-%(id)s-editar" onclick="return fk_dialog(this, \'%(url_upd)s\', \'%(titulo)s\', %(options)s)" title="Editar..." %(style)s><i class="icon-edit"></i></a>"""
+            bts = get_template("childcrud/{}/fkedit_widget.html".format(CHILDCRUD_UI)).render(Context(context))
 
-            if CHILDCRUD_UI == 'bootstrap':
-                bts = bts + u"""<div id="%(id)s-dialog" class="modal hide fade">
-                <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button><h3></h3></div>
-                <div class="modal-body"></div>
-                </div>"""
-            else:
-                bts = bts + u"""<div id="%(id)s-dialog"></div>"""
-
-            bts = bts % params
         return mark_safe(u'%s%s' % (output, bts))
 
     class Media:

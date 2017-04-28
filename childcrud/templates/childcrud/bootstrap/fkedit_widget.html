@@ -1,0 +1,7 @@
+<a href="#" onclick="return fk_dialog(this, '{{ url_new }}', '{{ titulo }}', {{ options|safe }})" title="Adicionar...">
+	{% include fkedit_add_icon_template %}
+</a>
+<a href="#" id="bt-{{ id }}-editar" onclick="return fk_dialog(this, '{{ url_upd }}', '{{ titulo }}', {{ options|safe }})" title="Editar..." {{ style|safe }}>
+	{% include fkedit_edit_icon_template %}
+</a>
+{% include fkedit_modal_template %}
