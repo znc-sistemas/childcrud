@@ -4,7 +4,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.core.files import File
-from django.db.models import get_model, DateField, DateTimeField, BooleanField
+from django.db.models import DateField, DateTimeField, BooleanField
+from django.apps import apps
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render_to_response, render, redirect
 from django.template import RequestContext
@@ -23,7 +24,7 @@ def simple_crud(request, app_name, model_name, id=None, form_class=None):
     View Genérica para listar, criar, atualizar e deletar, gerada a partir
     de registro do admin
     """
-    model = get_model(app_name, model_name)
+    model = apps.get_model(app_name, model_name)
 
     admin_registry = admin.site._registry
     if model not in admin_registry:
@@ -181,7 +182,7 @@ def simple_crud(request, app_name, model_name, id=None, form_class=None):
 
 @login_required
 def fk_create_update(request, app_name, model_name, id=None, form_class=None):
-    model = get_model(app_name, model_name)
+    model = apps.get_model(app_name, model_name)
 
     admin_registry = admin.site._registry
     if model not in admin_registry:
@@ -234,8 +235,8 @@ def fk_create_update(request, app_name, model_name, id=None, form_class=None):
 
 @login_required
 def ajax_create_update(request, p_app_name, p_model_name, p_id, app_name, model_name, id=None, form_class=None):
-    parent_model = get_model(p_app_name, p_model_name)
-    model = get_model(app_name, model_name)
+    parent_model = apps.get_model(p_app_name, p_model_name)
+    model = apps.get_model(app_name, model_name)
 
     inst_parent = get_object_or_404(parent_model, pk=p_id)
 
@@ -292,8 +293,8 @@ def ajax_create_update(request, p_app_name, p_model_name, p_id, app_name, model_
 
 @login_required
 def ajax_list(request, p_app_name, p_model_name, p_id, app_name, model_name):
-    parent_model = get_model(p_app_name, p_model_name)
-    model = get_model(app_name, model_name)
+    parent_model = apps.get_model(p_app_name, p_model_name)
+    model = apps.get_model(app_name, model_name)
 
     inst_parent = get_object_or_404(parent_model, pk=p_id)
 
