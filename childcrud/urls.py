@@ -1,8 +1,4 @@
-try:
-    from django.conf.urls import url
-except:
-    from django.conf.urls.defaults import patterns, url
-
+from django.conf.urls import url
 from views import ajax_create_update, ajax_list, fk_create_update
 
 urlpatterns = (
