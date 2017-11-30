@@ -59,9 +59,11 @@ class ChildModelAdmin(ModelAdmin):
             else:
                 exclude_fields.extend([self.fk_name])
 
-            if 'user_add' in self.model._meta.get_all_field_names():
+            all_names = [f.name for f in self.model._meta.get_fields()]
+
+            if 'user_add' in all_names:
                 exclude_fields.extend(['user_add', 'data_add'])
-            if 'user_upd' in self.model._meta.get_all_field_names():
+            if 'user_upd' in all_names:
                 exclude_fields.extend(['user_upd', 'data_upd'])
 
             for e in exclude_fields:
