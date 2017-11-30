@@ -218,7 +218,8 @@ def fk_create_update(request, app_name, model_name, id=None, form_class=None):
             obj = form.save()
             msg = id and u"Item atualizado com sucesso!" or u"Novo item criado com sucesso!"
 
-    return render_to_response(
+    return render(
+        request,
         [
             '%s/childcrud_%s_form.html' % (app_name, model_name),
             'childcrud/%s/fkedit_form.html' % CHILDCRUD_UI,
@@ -232,8 +233,7 @@ def fk_create_update(request, app_name, model_name, id=None, form_class=None):
             'msg': msg,
             'show_form': True,
             'variable_name': variable_name,
-        },
-        context_instance=RequestContext(request))
+        })
 
 
 @login_required
@@ -284,14 +284,15 @@ def ajax_create_update(request, p_app_name, p_model_name, p_id, app_name, model_
             if not id or (id and not keep_in_edit_form):
                 form = form_class(None, None, **dict([(k, v) for k, v in kw.items() if k != 'instance']))
 
-    return render_to_response(['%s/childcrud_%s_form.html' % (app_name, variable_name.lower()),
-                               '%s/childcrud_%s_form.html' % (app_name, model_name.lower()),
-                               'childcrud/%s/childcrud_form.html' % CHILDCRUD_UI],
-                              {'form': form, 'action': request.path,
-                               'msg': msg, 'variable_name': variable_name,
-                               'parent_object': inst_parent,
-                               'show_form': sticky_form or (not sticky_form and not msg)},
-                              context_instance=RequestContext(request))
+    return render(
+        request,
+        ['%s/childcrud_%s_form.html' % (app_name, variable_name.lower()),
+         '%s/childcrud_%s_form.html' % (app_name, model_name.lower()),
+         'childcrud/%s/childcrud_form.html' % CHILDCRUD_UI],
+        {'form': form, 'action': request.path,
+            'msg': msg, 'variable_name': variable_name,
+            'parent_object': inst_parent,
+            'show_form': sticky_form or (not sticky_form and not msg)})
 
 
 @login_required
@@ -422,17 +423,18 @@ def ajax_list(request, p_app_name, p_model_name, p_id, app_name, model_name):
             row.append(mark_safe('<span class="discreet">%s<br />%s</span>' % (user_upd, date_upd)))
         rows.append(row)
 
-    return render_to_response(['%s/childcrud_%s_list.html' % (app_name, variable_name.lower()),
-                               '%s/childcrud_%s_list.html' % (app_name, model_name.lower()),
-                               'childcrud/%s/childcrud_list.html' % CHILDCRUD_UI],
-                              {'object_list': object_list,
-                               'parent_object': inst_parent,
-                               'headers': headers,
-                               'rows': rows,
-                               'has_add_info': has_add_info,
-                               'has_upd_info': has_upd_info,
-                               'variable_name': variable_name,
-                               'can_edit': can_edit,
-                               'msg': msg,
-                               'request': request},
-                              context_instance=RequestContext(request))
+    return render(
+        request,
+        ['%s/childcrud_%s_list.html' % (app_name, variable_name.lower()),
+         '%s/childcrud_%s_list.html' % (app_name, model_name.lower()),
+         'childcrud/%s/childcrud_list.html' % CHILDCRUD_UI],
+        {'object_list': object_list,
+         'parent_object': inst_parent,
+         'headers': headers,
+         'rows': rows,
+         'has_add_info': has_add_info,
+         'has_upd_info': has_upd_info,
+         'variable_name': variable_name,
+         'can_edit': can_edit,
+         'msg': msg,
+         'request': request})
