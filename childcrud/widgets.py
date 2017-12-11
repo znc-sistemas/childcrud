@@ -20,9 +20,9 @@ class SelectFKWidget(Select):
         self.rel = rel
         self.options = options
 
-    def render(self, name, value, attrs=None, choices=()):
+    def render(self, name, value, attrs=None):
         attrs.update({'onchange': 'changeFK(this)'})
-        output = super(SelectFKWidget, self).render(name, value, attrs, choices=choices)
+        output = super(SelectFKWidget, self).render(name, value, attrs)
         bts = ''
         if self.rel:
             if self.options:
