@@ -2,7 +2,7 @@ from django import template
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.contrib import admin
-from django.db.models import get_model
+from django.apps import apps
 from django.utils.safestring import mark_safe
 
 import re
@@ -63,10 +63,10 @@ class ChildCRUDNode(template.Node):
         variable_name = '%s-%s' % (parent_string.split('.')[-1], child_string.split('.')[-1])
         context.dicts[0][variable_name] = ChildCrud(parent_string, parent_id, child_string, self.options)
         t = template.loader.get_template('childcrud/childcrud_config.js')
-        ctx = template.Context({'variable_name': variable_name,
-                                'urls': context.dicts[0][variable_name].get_urls(),
-                                'options': self.options})
-        return t.render(ctx)
+        return t.render({
+            'variable_name': variable_name,
+            'urls': context.dicts[0][variable_name].get_urls(),
+            'options': self.options})
 
 
 @register.tag
@@ -100,8 +100,7 @@ class ChildCRUDHTMLNode(template.Node):
         if dialog:
             verbose_name = cfg.child_model._meta.verbose_name.capitalize()
         t = template.loader.get_template('childcrud/%s/childcrud_config.html' % CHILDCRUD_UI)
-        ctx = template.Context({'variable_name': self.variable_name, 'dialog': dialog, 'verbose_name': verbose_name})
-        return t.render(ctx)
+        return t.render({'variable_name': self.variable_name, 'dialog': dialog, 'verbose_name': verbose_name})
 
 
 class ChildCrud(object):
@@ -109,12 +108,12 @@ class ChildCrud(object):
         self.parent_string = parent
         self.parent_app = '.'.join(parent.split('.')[:-1])
         self.parent_name = parent.split('.')[-1]
-        self.parent_model = get_model(self.parent_app, self.parent_name)
+        self.parent_model = apps.get_model(self.parent_app, self.parent_name)
         self.parent_id = parent_id
         self.child_string = child
         self.child_app = '.'.join(child.split('.')[:-1])
         self.child_name = child.split('.')[-1]
-        self.child_model = get_model(self.child_app, self.child_name)
+        self.child_model = apps.get_model(self.child_app, self.child_name)
         self.options = options
         self.child_model_admin = admin.site._registry.get(self.child_model, None)
         if options:

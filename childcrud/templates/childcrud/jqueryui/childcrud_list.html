@@ -10,7 +10,7 @@
 
 
 	{% for row in rows %}
-	   <tr class="{% cycle odd,even %}">
+	   <tr class="{% cycle 'odd' 'even' %}">
 	   {% for col in row %}
 	       {% if not forloop.first %}
 	           {% ifequal forloop.counter 2 %}
@@ -24,7 +24,7 @@
 	       {% if can_edit %}<td style="width:15px;"><a href="javascript:ajax_delete('{{ variable_name }}', {{ row.0 }})" title="Excluir..."><img src="{{ STATIC_URL }}images/del_alternative_icon.gif" /></a></td>{% endif %}
        </tr>
                {% empty %}
-                <tr class="{% cycle odd,even %}">
+                <tr class="{% cycle 'odd' 'even' %}">
                 <td colspan="{{ headers|length|add:'1' }}" >  Nenhum item encontrado.  </td>
                 </tr>
 	{% endfor %}

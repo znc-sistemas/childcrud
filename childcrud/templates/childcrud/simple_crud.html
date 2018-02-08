@@ -41,7 +41,7 @@
         </thead>
         <tbody>
         {% for row in rows%}
-            <tr class="{% cycle odd,even %}">
+            <tr class="{% cycle 'odd' 'even' %}">
                 {% for col in row %}
                     {% if forloop.first %}
                 <td><input type="checkbox" name="delete" value="{{ col }}" /></td>

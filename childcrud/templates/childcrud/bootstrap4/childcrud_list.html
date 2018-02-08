@@ -24,7 +24,7 @@
            {% if can_edit %}<td style="width:15px;"><a href="javascript:ajax_delete('{{ variable_name }}', {{ row.0 }})" title="Excluir..."><i class="icon-remove"></i></a></td>{% endif %}
        </tr>
                {% empty %}
-                <tr class="{% cycle odd,even %}">
+                <tr class="{% cycle 'odd' 'even' %}">
                 <td colspan="{{ headers|length|add:'1' }}" >  Nenhum item encontrado.  </td>
                 </tr>
     {% endfor %}

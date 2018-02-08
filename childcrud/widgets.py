@@ -1,10 +1,12 @@
 # coding: utf-8
+
+import json
+import re
+
 from django.forms.widgets import Select
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.safestring import mark_safe
-from django.utils import simplejson
-import re
 from django.template import Context
 from django.template.loader import get_template
 # from templatetags import CHILDCRUD_UI
@@ -18,20 +20,20 @@ class SelectFKWidget(Select):
         self.rel = rel
         self.options = options
 
-    def render(self, name, value, attrs=None, choices=()):
+    def render(self, name, value, attrs=None):
         attrs.update({'onchange': 'changeFK(this)'})
-        output = super(SelectFKWidget, self).render(name, value, attrs, choices=choices)
+        output = super(SelectFKWidget, self).render(name, value, attrs)
         bts = ''
         if self.rel:
             if self.options:
-                op_str = simplejson.dumps(self.options).replace('"', "'")
+                op_str = json.dumps(self.options).replace('"', "'")
                 op_str = re.sub(r"\'formload_cb\': \'(.*)\',", r"'formload_cb': \1,", op_str)
             else:
                 op_str = 'null'
 
             context = {
-                'url_new': reverse('fk-create', kwargs={'app_name': self.rel._meta.app_label, 'model_name': self.rel._meta.module_name.lower()}),
-                'url_upd': reverse('fk-update', kwargs={'app_name': self.rel._meta.app_label, 'model_name': self.rel._meta.module_name.lower(), 'id': '0'}),
+                'url_new': reverse('fk-create', kwargs={'app_name': self.rel._meta.app_label, 'model_name': self.rel._meta.model_name.lower()}),
+                'url_upd': reverse('fk-update', kwargs={'app_name': self.rel._meta.app_label, 'model_name': self.rel._meta.model_name.lower(), 'id': '0'}),
                 'titulo': self.rel._meta.verbose_name.capitalize(),
                 'id': attrs.get('id', name),
                 'style': not value and 'style="display:none"' or '',
