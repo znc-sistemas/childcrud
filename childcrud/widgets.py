@@ -42,7 +42,7 @@ class SelectFKWidget(Select):
                 'fkedit_edit_icon_template': 'childcrud/{}/fkedit_edit_icon.html'.format(CHILDCRUD_UI),
             }
 
-            bts = get_template("childcrud/{}/fkedit_widget.html".format(CHILDCRUD_UI)).render(Context(context))
+            bts = get_template("childcrud/{}/fkedit_widget.html".format(CHILDCRUD_UI)).render(context)
 
         return mark_safe(u'%s%s' % (output, bts))
 
