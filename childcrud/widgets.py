@@ -7,7 +7,6 @@ from django.forms.widgets import Select
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.safestring import mark_safe
-from django.template import Context
 from django.template.loader import get_template
 # from templatetags import CHILDCRUD_UI
 
@@ -44,7 +43,7 @@ class SelectFKWidget(Select):
                 'fkedit_edit_icon_template': 'childcrud/{}/fkedit_edit_icon.html'.format(CHILDCRUD_UI),
             }
 
-            bts = get_template("childcrud/{}/fkedit_widget.html".format(CHILDCRUD_UI)).render(Context(context))
+            bts = get_template("childcrud/{}/fkedit_widget.html".format(CHILDCRUD_UI)).render(context)
 
         return mark_safe(u'%s%s' % (output, bts))
 

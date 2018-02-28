@@ -7,8 +7,7 @@ from django.core.files import File
 from django.db.models import DateField, DateTimeField, BooleanField
 from django.apps import apps
 from django.http import Http404
-from django.shortcuts import get_object_or_404, render_to_response, render, redirect
-from django.template import RequestContext
+from django.shortcuts import get_object_or_404, render, redirect
 from django.utils.safestring import mark_safe
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import date as date_filter
