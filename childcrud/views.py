@@ -330,15 +330,14 @@ def ajax_list(request, p_app_name, p_model_name, p_id, app_name, model_name):
             del_kw = kw.copy()
             del_kw['pk'] = str(del_id)
 
-            #obj = model.objects.filter(**del_kw)
-            obj = model_admin.queryset(request).filter(**del_kw)
+            obj = model_admin.get_queryset(request).filter(**del_kw)
             msg = u'Item excluído com sucesso!'
             try:
                 model_admin.delete_model(request, obj, parent_obj=inst_parent)
             except Exception as erro:
                 msg = u'Item não excluído: %s' % unicode(erro)
 
-    object_list = model_admin.queryset(request).filter(**kw)
+    object_list = model_admin.get_queryset(request).filter(**kw)
 
     headers = []
     cols = []
