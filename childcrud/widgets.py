@@ -30,8 +30,8 @@ class SelectFKWidget(Select):
                 op_str = 'null'
 
             context = {
-                'url_new': reverse('fk-create', kwargs={'app_name': self.rel._meta.app_label, 'model_name': self.rel._meta.module_name.lower()}),
-                'url_upd': reverse('fk-update', kwargs={'app_name': self.rel._meta.app_label, 'model_name': self.rel._meta.module_name.lower(), 'id': '0'}),
+                'url_new': reverse('fk-create', kwargs={'app_name': self.rel._meta.app_label, 'model_name': self.rel._meta.model_name.lower()}),
+                'url_upd': reverse('fk-update', kwargs={'app_name': self.rel._meta.app_label, 'model_name': self.rel._meta.model_name.lower(), 'id': '0'}),
                 'titulo': self.rel._meta.verbose_name.capitalize(),
                 'id': attrs.get('id', name),
                 'style': not value and 'style="display:none"' or '',
