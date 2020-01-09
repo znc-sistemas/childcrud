@@ -3,7 +3,7 @@ from django.forms.widgets import Select
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.safestring import mark_safe
-from django.utils import simplejson
+import json
 import re
 from django.template import Context
 from django.template.loader import get_template
@@ -24,7 +24,7 @@ class SelectFKWidget(Select):
         bts = ''
         if self.rel:
             if self.options:
-                op_str = simplejson.dumps(self.options).replace('"', "'")
+                op_str = json.dumps(self.options).replace('"', "'")
                 op_str = re.sub(r"\'formload_cb\': \'(.*)\',", r"'formload_cb': \1,", op_str)
             else:
                 op_str = 'null'
