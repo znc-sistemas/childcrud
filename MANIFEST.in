@@ -1,1 +1,2 @@
 recursive-include childcrud/templates *
+recursive-include childcrud/static *
