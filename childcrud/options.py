@@ -1,5 +1,5 @@
 from django.contrib.admin.options import ModelAdmin
-from django.contrib.contenttypes.generic import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.forms.models import _get_foreign_key
 
