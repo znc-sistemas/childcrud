@@ -54,14 +54,14 @@ def simple_crud(request, app_name, model_name, id=None, form_class=None):
                         model_admin.delete_model(request, obj)
                         ct_deleted += 1
                     except Exception as error:
-                        delete_errors.append(unicode(error))
+                        delete_errors.append(str(error))
 
                 plural = ct_deleted > 1
-                msg = u'%d ite%s excluído%s.' % (ct_deleted, plural and 'ns' or 'm', plural and 's' or '')
+                msg = '%d ite%s excluído%s.' % (ct_deleted, plural and 'ns' or 'm', plural and 's' or '')
                 messages.success(request, msg)
                 if delete_errors:
                     errors_plural = len(delete_errors) > 1
-                    msg = u'%d ite%s não fo%s excluído%s: %s' % (
+                    msg = '%d ite%s não fo%s excluído%s: %s' % (
                         len(delete_errors),
                         'ns' if errors_plural else 'm',
                         'ram' if errors_plural else 'i',
@@ -70,14 +70,14 @@ def simple_crud(request, app_name, model_name, id=None, form_class=None):
                     )
                     messages.warning(request, msg)
             else:
-                msg = u'Nenhum item excluído. Selecione algum antes!'
+                msg = 'Nenhum item excluído. Selecione algum antes!'
                 messages.warning(request, msg)
             return redirect(base_url)
         else:
             # create and update
             if form.is_valid():
                 form.save()
-                msg = instance and u"Item atualizado com sucesso!" or u"Novo item criado com sucesso!"
+                msg = instance and "Item atualizado com sucesso!" or "Novo item criado com sucesso!"
                 messages.success(request, msg)
                 return redirect(base_url)
 
@@ -108,9 +108,9 @@ def simple_crud(request, app_name, model_name, id=None, form_class=None):
         if field.name not in (model_admin.fk_name, 'user_upd', 'date_upd', 'user_add', 'date_add'):
             cols.append(field.name)
     if has_add_info:
-        headers.append(u'Cadastro')
+        headers.append('Cadastro')
     if has_upd_info:
-        headers.append(u'Atualização')
+        headers.append('Atualização')
 
     rows = []
     for obj in object_list:
@@ -131,12 +131,12 @@ def simple_crud(request, app_name, model_name, id=None, form_class=None):
                     elif isinstance(field, DateTimeField):
                         data = date_filter(data, "d/m/Y H:i")
                     elif isinstance(data, File):
-                        if unicode(data):
-                            data = mark_safe('<a href="%s" class="download-link">%s</a>' % (data.url, os.path.basename(unicode(data))))
+                        if str(data):
+                            data = mark_safe('<a href="%s" class="download-link">%s</a>' % (data.url, os.path.basename(str(data))))
                         else:
                             data = ''
                     elif isinstance(field, BooleanField):
-                        data = data and u'Sim' or u'Não'
+                        data = data and 'Sim' or 'Não'
 
             row.append(data)
         if has_add_info:
@@ -185,7 +185,7 @@ def fk_create_update(request, app_name, model_name, id=None, form_class=None):
 
     admin_registry = admin.site._registry
     if model not in admin_registry:
-        raise Exception(u"Model '%s.%s' not registered!" % (app_name, model_name))
+        raise Exception("Model '%s.%s' not registered!" % (app_name, model_name))
 
     model_admin = admin_registry[model]
 
@@ -215,7 +215,7 @@ def fk_create_update(request, app_name, model_name, id=None, form_class=None):
     if request.method == 'POST':
         if form.is_valid():
             obj = form.save()
-            msg = id and u"Item atualizado com sucesso!" or u"Novo item criado com sucesso!"
+            msg = id and "Item atualizado com sucesso!" or "Novo item criado com sucesso!"
 
     return render(
         request,
@@ -244,7 +244,7 @@ def ajax_create_update(request, p_app_name, p_model_name, p_id, app_name, model_
 
     admin_registry = admin.site._registry
     if model not in admin_registry:
-        raise Exception(u"Model '%s.%s' not registered!" % (app_name, model_name))
+        raise Exception("Model '%s.%s' not registered!" % (app_name, model_name))
 
     model_admin = admin_registry[model]
 
@@ -278,10 +278,10 @@ def ajax_create_update(request, p_app_name, p_model_name, p_id, app_name, model_
             instance = form.save(commit=False)
             model_admin.save_model(request, instance, form, change=id, parent_obj=inst_parent)
 
-            msg = id and u"Item atualizado com sucesso!" or u"Novo item criado com sucesso!"
+            msg = id and "Item atualizado com sucesso!" or "Novo item criado com sucesso!"
             # form novo
             if not id or (id and not keep_in_edit_form):
-                form = form_class(None, None, **dict([(k, v) for k, v in kw.items() if k != 'instance']))
+                form = form_class(None, None, **dict([(k, v) for k, v in list(kw.items()) if k != 'instance']))
 
     return render(
         request,
@@ -303,7 +303,7 @@ def ajax_list(request, p_app_name, p_model_name, p_id, app_name, model_name):
 
     admin_registry = admin.site._registry
     if model not in admin_registry:
-        raise Exception(u"Model '%s.%s' not registered!" % (app_name, model_name))
+        raise Exception("Model '%s.%s' not registered!" % (app_name, model_name))
 
     variable_name = '%s-%s' % (p_model_name, model_name)
 
@@ -335,11 +335,11 @@ def ajax_list(request, p_app_name, p_model_name, p_id, app_name, model_name):
 
             # obj = model.objects.filter(**del_kw)
             obj = model_admin.get_queryset(request).filter(**del_kw)
-            msg = u'Item excluído com sucesso!'
+            msg = 'Item excluído com sucesso!'
             try:
                 model_admin.delete_model(request, obj, parent_obj=inst_parent)
             except Exception as erro:
-                msg = u'Item não excluído: %s' % unicode(erro)
+                msg = 'Item não excluído: %s' % str(erro)
 
     object_list = model_admin.get_queryset(request).filter(**kw)
 
@@ -372,9 +372,9 @@ def ajax_list(request, p_app_name, p_model_name, p_id, app_name, model_name):
         if field.name not in fields_exclude_from_list:
             cols.append(field.name)
     if has_add_info:
-        headers.append(u'Cadastro')
+        headers.append('Cadastro')
     if has_upd_info:
-        headers.append(u'Atualização')
+        headers.append('Atualização')
 
     rows = []
     for obj in object_list:
@@ -395,8 +395,8 @@ def ajax_list(request, p_app_name, p_model_name, p_id, app_name, model_name):
                     elif isinstance(field, DateTimeField):
                         data = date_filter(data, "d/m/Y H:i")
                     elif isinstance(data, File):
-                        if unicode(data):
-                            data = mark_safe('<a href="%s" class="download-link">%s</a>' % (data.url, os.path.basename(unicode(data))))
+                        if str(data):
+                            data = mark_safe('<a href="%s" class="download-link">%s</a>' % (data.url, os.path.basename(str(data))))
                         else:
                             data = ''
             row.append(data)
