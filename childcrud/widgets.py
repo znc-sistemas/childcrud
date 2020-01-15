@@ -45,7 +45,7 @@ class SelectFKWidget(Select):
 
             bts = get_template("childcrud/{}/fkedit_widget.html".format(CHILDCRUD_UI)).render(context)
 
-        return mark_safe(u'%s%s' % (output, bts))
+        return mark_safe('%s%s' % (output, bts))
 
     class Media:
         css = {

@@ -5,7 +5,7 @@ from django.forms.models import _get_foreign_key
 
 
 def get_generic_fk_field(model):
-    for name, field in model.__dict__.items():
+    for name, field in list(model.__dict__.items()):
         if isinstance(field, GenericForeignKey):
             return field
     return None

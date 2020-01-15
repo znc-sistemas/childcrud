@@ -75,7 +75,7 @@ def childcrud_html(parser, token):
         # split_contents() knows not to split quoted strings.
         tag_name, parent, parent_id, child = token.split_contents()
     except ValueError:
-        raise template.TemplateSyntaxError, "%r tag requires exactly three arguments" % token.contents.split()[0]
+        raise template.TemplateSyntaxError("%r tag requires exactly three arguments" % token.contents.split()[0])
 
     return ChildCRUDHTMLNode(parent, parent_id, child)
 
