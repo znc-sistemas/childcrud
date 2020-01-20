@@ -9,7 +9,7 @@ from django.apps import apps
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render, redirect
 from django.utils.safestring import mark_safe
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.template.defaultfilters import date as date_filter
 
 import os

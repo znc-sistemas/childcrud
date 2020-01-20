@@ -5,7 +5,7 @@ import re
 
 from django.forms.widgets import Select
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.template.loader import get_template
 # from templatetags import CHILDCRUD_UI
