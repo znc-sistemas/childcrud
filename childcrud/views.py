@@ -311,7 +311,7 @@ def ajax_list(request, p_app_name, p_model_name, p_id, app_name, model_name):
 
     model_admin.set_parent_info(parent_model)
 
-    can_edit = request.user.is_authenticated()
+    can_edit = request.user.is_authenticated
 
     # if ModelAdmin has check_can_edit callback method, call it to update can_edit
     if (hasattr(model_admin, 'check_can_edit')):
