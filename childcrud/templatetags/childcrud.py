@@ -1,6 +1,6 @@
 from django import template
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.contrib import admin
 from django.apps import apps
 from django.utils.safestring import mark_safe
@@ -63,9 +63,11 @@ class ChildCRUDNode(template.Node):
         variable_name = '%s-%s' % (parent_string.split('.')[-1], child_string.split('.')[-1])
         context.dicts[0][variable_name] = ChildCrud(parent_string, parent_id, child_string, self.options)
         t = template.loader.get_template('childcrud/childcrud_config.js')
-        ctx = template.Context({'variable_name': variable_name,
-                                'urls': context.dicts[0][variable_name].get_urls(),
-                                'options': self.options})
+        ctx = {
+            'variable_name': variable_name,
+            'urls': context.dicts[0][variable_name].get_urls(),
+            'options': self.options
+        }
         return t.render(ctx)
 
 
@@ -75,7 +77,8 @@ def childcrud_html(parser, token):
         # split_contents() knows not to split quoted strings.
         tag_name, parent, parent_id, child = token.split_contents()
     except ValueError:
-        raise template.TemplateSyntaxError, "%r tag requires exactly three arguments" % token.contents.split()[0]
+        raise template.TemplateSyntaxError(
+                "%r tag requires exactly three arguments" % token.contents.split()[0])
 
     return ChildCRUDHTMLNode(parent, parent_id, child)
 
@@ -100,7 +103,7 @@ class ChildCRUDHTMLNode(template.Node):
         if dialog:
             verbose_name = cfg.child_model._meta.verbose_name.capitalize()
         t = template.loader.get_template('childcrud/%s/childcrud_config.html' % CHILDCRUD_UI)
-        ctx = template.Context({'variable_name': self.variable_name, 'dialog': dialog, 'verbose_name': verbose_name})
+        ctx = {'variable_name': self.variable_name, 'dialog': dialog, 'verbose_name': verbose_name}
         return t.render(ctx)
 
 

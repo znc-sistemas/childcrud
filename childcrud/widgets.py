@@ -1,7 +1,7 @@
 # coding: utf-8
 from django.forms.widgets import Select
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 import json
 import re

@@ -7,10 +7,10 @@ from django.core.files import File
 from django.apps import apps
 from django.db.models import DateField, DateTimeField, BooleanField
 from django.http import Http404
-from django.shortcuts import get_object_or_404, render_to_response, render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.template import RequestContext
 from django.utils.safestring import mark_safe
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.template.defaultfilters import date as date_filter
 
 import os
@@ -55,7 +55,7 @@ def simple_crud(request, app_name, model_name, id=None, form_class=None):
                         model_admin.delete_model(request, obj)
                         ct_deleted += 1
                     except Exception as error:
-                        delete_errors.append(unicode(error))
+                        delete_errors.append(str(error))
 
                 plural = ct_deleted > 1
                 msg = u'%d ite%s excluído%s.' % (ct_deleted, plural and 'ns' or 'm', plural and 's' or '')
@@ -132,8 +132,8 @@ def simple_crud(request, app_name, model_name, id=None, form_class=None):
                     elif isinstance(field, DateTimeField):
                         data = date_filter(data, "d/m/Y H:i")
                     elif isinstance(data, File):
-                        if unicode(data):
-                            data = mark_safe('<a href="%s" class="download-link">%s</a>' % (data.url, os.path.basename(unicode(data))))
+                        if str(data):
+                            data = mark_safe('<a href="%s" class="download-link">%s</a>' % (data.url, os.path.basename(str(data))))
                         else:
                             data = ''
                     elif isinstance(field, BooleanField):
@@ -218,19 +218,19 @@ def fk_create_update(request, app_name, model_name, id=None, form_class=None):
             obj = form.save()
             msg = id and u"Item atualizado com sucesso!" or u"Novo item criado com sucesso!"
 
-    return render_to_response(['%s/childcrud_%s_form.html' % (app_name, model_name),
-                                'childcrud/%s/fkedit_form.html' % CHILDCRUD_UI, ],
-                               {
-                                    'field_id': field_id,
-                                    'action_url': action_url,
-                                    'form': form,
-                                    'is_new': not id,
-                                    'object': obj,
-                                    'msg': msg,
-                                    'show_form': True,
-                                    'variable_name': variable_name,
-                                },
-                               context_instance=RequestContext(request))
+    return render(request, 
+                  ['%s/childcrud_%s_form.html' % (app_name, model_name),
+                   'childcrud/%s/fkedit_form.html' % CHILDCRUD_UI, ],
+                  {
+                    'field_id': field_id,
+                    'action_url': action_url,
+                    'form': form,
+                    'is_new': not id,
+                    'object': obj,
+                    'msg': msg,
+                    'show_form': True,
+                    'variable_name': variable_name,
+                  })
 
 
 @login_required
@@ -281,14 +281,15 @@ def ajax_create_update(request, p_app_name, p_model_name, p_id, app_name, model_
             if not id or (id and not keep_in_edit_form):
                 form = form_class(None, None, **dict([(k, v) for k, v in kw.items() if k != 'instance']))
 
-    return render_to_response(['%s/childcrud_%s_form.html' % (app_name, variable_name.lower()),
-                               '%s/childcrud_%s_form.html' % (app_name, model_name.lower()),
-                               'childcrud/%s/childcrud_form.html' % CHILDCRUD_UI],
-                              {'form': form, 'action': request.path,
-                               'msg': msg, 'variable_name': variable_name,
-                               'parent_object': inst_parent,
-                               'show_form': sticky_form or (not sticky_form and not msg)},
-                              context_instance=RequestContext(request))
+    return render(request,
+                  ['%s/childcrud_%s_form.html' % (app_name, variable_name.lower()),
+                   '%s/childcrud_%s_form.html' % (app_name, model_name.lower()),
+                   'childcrud/%s/childcrud_form.html' % CHILDCRUD_UI],
+                  {'form': form, 'action': request.path,
+                   'msg': msg, 'variable_name': variable_name,
+                   'parent_object': inst_parent,
+                   'show_form': sticky_form or (not sticky_form and not msg)},
+                  )
 
 
 @login_required
@@ -308,7 +309,7 @@ def ajax_list(request, p_app_name, p_model_name, p_id, app_name, model_name):
 
     model_admin.set_parent_info(parent_model)
 
-    can_edit = request.user.is_authenticated()
+    can_edit = request.user.is_authenticated
 
     # if ModelAdmin has check_can_edit callback method, call it to update can_edit
     if (hasattr(model_admin, 'check_can_edit')):
@@ -331,14 +332,14 @@ def ajax_list(request, p_app_name, p_model_name, p_id, app_name, model_name):
             del_kw['pk'] = str(del_id)
 
             #obj = model.objects.filter(**del_kw)
-            obj = model_admin.queryset(request).filter(**del_kw)
+            obj = model_admin.get_queryset(request).filter(**del_kw)
             msg = u'Item excluído com sucesso!'
             try:
                 model_admin.delete_model(request, obj, parent_obj=inst_parent)
             except Exception as erro:
-                msg = u'Item não excluído: %s' % unicode(erro)
+                msg = u'Item não excluído: %s' % str(erro)
 
-    object_list = model_admin.queryset(request).filter(**kw)
+    object_list = model_admin.get_queryset(request).filter(**kw)
 
     headers = []
     cols = []
@@ -392,8 +393,8 @@ def ajax_list(request, p_app_name, p_model_name, p_id, app_name, model_name):
                     elif isinstance(field, DateTimeField):
                         data = date_filter(data, "d/m/Y H:i")
                     elif isinstance(data, File):
-                        if unicode(data):
-                            data = mark_safe('<a href="%s" class="download-link">%s</a>' % (data.url, os.path.basename(unicode(data))))
+                        if str(data):
+                            data = mark_safe('<a href="%s" class="download-link">%s</a>' % (data.url, os.path.basename(str(data))))
                         else:
                             data = ''
             row.append(data)
@@ -419,17 +420,18 @@ def ajax_list(request, p_app_name, p_model_name, p_id, app_name, model_name):
             row.append(mark_safe('<span class="discreet">%s<br />%s</span>' % (user_upd, date_upd)))
         rows.append(row)
 
-    return render_to_response(['%s/childcrud_%s_list.html' % (app_name, variable_name.lower()),
-                               '%s/childcrud_%s_list.html' % (app_name, model_name.lower()),
-                               'childcrud/%s/childcrud_list.html' % CHILDCRUD_UI],
-                              {'object_list': object_list,
-                               'parent_object': inst_parent,
-                               'headers': headers,
-                               'rows': rows,
-                               'has_add_info': has_add_info,
-                               'has_upd_info': has_upd_info,
-                               'variable_name': variable_name,
-                               'can_edit': can_edit,
-                               'msg': msg,
-                               'request': request},
-                              context_instance=RequestContext(request))
+    return render(request, 
+                  ['%s/childcrud_%s_list.html' % (app_name, variable_name.lower()),
+                   '%s/childcrud_%s_list.html' % (app_name, model_name.lower()),
+                   'childcrud/%s/childcrud_list.html' % CHILDCRUD_UI],
+                  {'object_list': object_list,
+                   'parent_object': inst_parent,
+                   'headers': headers,
+                   'rows': rows,
+                    'has_add_info': has_add_info,
+                    'has_upd_info': has_upd_info,
+                    'variable_name': variable_name,
+                    'can_edit': can_edit,
+                    'msg': msg,
+                    'request': request},
+                  )
