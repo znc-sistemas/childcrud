@@ -13,11 +13,11 @@
        <tr>
        {% for col in row %}
            {% if not forloop.first %}
-               {% ifequal forloop.counter 2 %}
+               {% if forloop.counter == 2 %}
            <td>{% if can_edit %}<a href="javascript:ajax_show_form('{{ variable_name }}', {{ row.0 }})" title="Editar...">{{ col }}</a>{% else %}{{ col }}{% endif %}</td>
                {% else %}
            <td>{{ col }}</td>
-               {% endifequal %}
+               {% endif %}
            {% endif %}
 
        {% endfor %}
